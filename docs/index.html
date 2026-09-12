@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Daily Lollipop</title>
+    <style>
+      :root {
+        --bg: #f8f4ff;
+        --panel: #ffffff;
+        --card: #fffdf9;
+        --ink: #2c2540;
+        --muted: #5f5572;
+        --shadow: rgba(58, 35, 99, 0.12);
+        --math: #7c6cf2;
+        --science: #35b38d;
+        --geo: #f39b45;
+        --general: #ef5f8d;
+        --line: #efe6ff;
+        --button: #2b1d4d;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #fdf8ff 0%, #f4f0ff 100%);
+        color: var(--ink);
+      }
+
+      .page-shell {
+        width: min(1100px, calc(100% - 32px));
+        margin: 32px auto 60px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        padding: 10px 14px;
+      }
+
+      .sparkle {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: rgba(255, 214, 102, 0.9);
+        border-radius: 50%;
+        box-shadow: 0 0 18px rgba(255, 214, 102, 0.85);
+        pointer-events: none;
+        animation: floatUp 8s ease-in-out infinite;
+        z-index: 0;
+      }
+
+      @keyframes floatUp {
+        0% { transform: translateY(10px) scale(0.8); opacity: 0; }
+        20% { opacity: 1; }
+        100% { transform: translateY(-120px) scale(1.2); opacity: 0; }
+      }
+
+      .brand-block {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.08rem;
+        letter-spacing: 0.02em;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--math), var(--science));
+        box-shadow: 0 0 12px rgba(124, 108, 242, 0.3);
+      }
+
+      .badge {
+        background: #f0ebff;
+        color: var(--button);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .main-panel {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        box-shadow: 0 20px 50px var(--shadow);
+        backdrop-filter: blur(2px);
+        padding: 30px 20px 28px;
+      }
+
+      .hero {
+        text-align: center;
+        margin-bottom: 26px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.2rem, 4vw, 3.5rem);
+        line-height: 1.05;
+      }
+
+      .subtitle {
+        max-width: 700px;
+        margin: 12px auto 0;
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.6;
+      }
+
+      .date-chip {
+        display: inline-block;
+        margin-top: 18px;
+        border-radius: 999px;
+        background: #fffaf2;
+        border: 1px solid #f4d8ab;
+        color: #75541d;
+        font-weight: 700;
+        padding: 10px 18px;
+      }
+
+      .completion-banner {
+        margin-top: 18px;
+        background: linear-gradient(135deg, #fff9d8, #ffe8ef);
+        border: 1px solid #f9d7a9;
+        border-radius: 18px;
+        padding: 14px 16px;
+        color: #694a18;
+        display: none;
+        text-align: center;
+        font-weight: 800;
+      }
+
+      .completion-banner.visible {
+        display: block;
+      }
+
+      .info-strip {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .comet-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+        background: linear-gradient(135deg, #fff3d9, #f0ebff);
+        border: 1px solid #f4dfaf;
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-size: 0.84rem;
+        font-weight: 800;
+        color: #5b3a2a;
+      }
+
+      .info-pill {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: var(--muted);
+      }
+
+      .question-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .question-card {
+        background: var(--card);
+        border: 1px solid #f1e5ff;
+        border-radius: 22px;
+        padding: 18px 16px 16px;
+        box-shadow: 0 10px 20px rgba(41, 27, 61, 0.04);
+        display: flex;
+        flex-direction: column;
+        min-height: 220px;
+      }
+
+      .category-pill {
+        align-self: flex-start;
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: white;
+        margin-bottom: 12px;
+      }
+
+      .question-card.maths .category-pill { background: var(--math); }
+      .question-card.science .category-pill { background: var(--science); }
+      .question-card.geography .category-pill { background: var(--geo); }
+      .question-card.general .category-pill { background: var(--general); }
+
+      .question-card h2 {
+        margin: 0 0 12px;
+        font-size: 0.82rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .question {
+        margin: 0;
+        font-size: clamp(1.1rem, 2vw, 1.38rem);
+        line-height: 1.5;
+        font-weight: 700;
+        flex: 1;
+      }
+
+      .answer-box {
+        display: none;
+        margin-top: 14px;
+        padding: 12px 12px 10px;
+        border-radius: 14px;
+        background: #f2fff9;
+        border: 1px solid #cdebdc;
+        color: #1e5d45;
+      }
+
+      .answer-box.visible {
+        display: block;
+      }
+
+      .answer-label {
+        display: block;
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 800;
+        margin-bottom: 6px;
+        color: #2c7a5c;
+      }
+
+      .answer {
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      .explanation {
+        margin-top: 6px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: #335a4d;
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .reveal-btn, .complete-btn {
+        border: 0;
+        border-radius: 12px;
+        padding: 11px 14px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+
+      .reveal-btn {
+        background: var(--button);
+        color: white;
+        flex: 1;
+      }
+
+      .complete-btn {
+        background: #ecfef3;
+        color: #1c6d45;
+        border: 1px solid #b3e7c6;
+      }
+
+      .question-card.completed {
+        background: linear-gradient(180deg, #fffef9 0%, #f3fff5 100%);
+        border-color: #bfecc8;
+      }
+
+      .question-card.completed .complete-btn {
+        background: #dff7e7;
+      }
+
+      .reveal-btn:hover, .complete-btn:hover {
+        transform: translateY(-1px);
+        opacity: 0.98;
+      }
+
+      .reveal-btn:active, .complete-btn:active {
+        transform: translateY(0);
+      }
+
+      @media (max-width: 640px) {
+        .page-shell {
+          width: min(100% - 16px, 1100px);
+          margin-top: 18px;
+        }
+
+        .main-panel {
+          padding: 20px 12px 18px;
+        }
+
+        .topbar {
+          padding-left: 0;
+          padding-right: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <main class="main-panel">
+        <section class="hero">
+          <h1>The Daily Lollipop</h1>
+          <div class="comet-badge" aria-label="Comet the cat">🐈 Comet says hello</div>
+          <div id="today-date" class="date-chip">Today</div>
+          <div class="info-strip">
+            <span class="info-pill">Born 5 November 2018</span>
+            <span class="info-pill">4 questions a day</span>
+            <span class="info-pill">Year 3</span>
+          </div>
+          <div id="completion-banner" class="completion-banner">⭐ You did it! Today's challenge is complete.</div>
+        </section>
+
+        <section id="question-grid" class="question-grid" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <script src="questions.js"></script>
+    <script>
+      const categoryOrder = [
+        { key: 'maths', label: 'Maths', className: 'maths' },
+        { key: 'science', label: 'Science', className: 'science' },
+        { key: 'geography', label: 'Geography', className: 'geography' },
+        { key: 'generalKnowledge', label: 'General Knowledge', className: 'general' }
+      ];
+
+      const categorySeed = {
+        maths: 1,
+        science: 5,
+        geography: 9,
+        generalKnowledge: 13
+      };
+
+      const storageKey = 'lolaDaily4Progress';
+
+      function getTodayDateText() {
+        const today = new Date();
+        return today.toLocaleDateString('en-GB', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+
+      function getDateKey(date = new Date()) {
+        return date.toISOString().slice(0, 10);
+      }
+
+      function loadProgress() {
+        try {
+          const raw = localStorage.getItem(storageKey);
+          return raw ? JSON.parse(raw) : {};
+        } catch (error) {
+          return {};
+        }
+      }
+
+      function saveProgress(data) {
+        localStorage.setItem(storageKey, JSON.stringify(data));
+      }
+
+      function getTodaysProgress() {
+        const progress = loadProgress();
+        return progress[getDateKey()] || {};
+      }
+
+      function getDayNumber(date) {
+        const start = new Date(date.getFullYear(), 0, 0);
+        const diff = date - start;
+        return Math.floor(diff / 86400000);
+      }
+
+      function selectQuestions() {
+        const today = new Date();
+        const dayNumber = getDayNumber(today);
+
+        return categoryOrder.map((category, index) => {
+          const list = window.questionBank[category.key];
+          const offset = dayNumber + categorySeed[category.key] + index * 3;
+          const chosen = list[offset % list.length];
+          return { ...chosen, ...category };
+        });
+      }
+
+      function updateCompletionBanner() {
+        const completionBanner = document.getElementById('completion-banner');
+        const todaysProgress = getTodaysProgress();
+        const completeCount = categoryOrder.filter((category) => todaysProgress[category.key]).length;
+
+        if (completeCount === categoryOrder.length) {
+          completionBanner.classList.add('visible');
+          completionBanner.textContent = '⭐ You did it! Today\'s challenge is complete.';
+        } else {
+          completionBanner.classList.remove('visible');
+          completionBanner.textContent = '⭐ You did it! Today\'s challenge is complete.';
+        }
+      }
+
+      function toggleCardComplete(categoryKey) {
+        const progress = loadProgress();
+        const dateKey = getDateKey();
+        if (!progress[dateKey]) progress[dateKey] = {};
+
+        progress[dateKey][categoryKey] = !progress[dateKey][categoryKey];
+        saveProgress(progress);
+        renderQuestions();
+      }
+
+      function renderQuestions() {
+        const grid = document.getElementById('question-grid');
+        const selected = selectQuestions();
+        const todaysProgress = getTodaysProgress();
+
+        document.getElementById('today-date').textContent = getTodayDateText();
+
+        grid.innerHTML = selected.map((item) => {
+          const isComplete = Boolean(todaysProgress[item.key]);
+
+          return `
+            <article class="question-card ${item.className} ${isComplete ? 'completed' : ''}">
+              <span class="category-pill">${item.label}</span>
+              <h2>Today's challenge</h2>
+              <p class="question">${item.question}</p>
+              <div class="answer-box">
+                <span class="answer-label">Answer</span>
+                <p class="answer">${item.answer}</p>
+                <p class="explanation">${item.explanation}</p>
+              </div>
+              <div class="card-actions">
+                <button class="reveal-btn" type="button">Reveal answer</button>
+                <button class="complete-btn" type="button">${isComplete ? 'Done!' : 'Done?'}</button>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        document.querySelectorAll('.reveal-btn').forEach((button) => {
+          button.addEventListener('click', () => {
+            const box = button.parentElement.parentElement.querySelector('.answer-box');
+            const currentlyVisible = box.classList.contains('visible');
+            box.classList.toggle('visible', !currentlyVisible);
+            button.textContent = currentlyVisible ? 'Reveal answer' : 'Hide answer';
+          });
+        });
+
+        document.querySelectorAll('.complete-btn').forEach((button) => {
+          button.addEventListener('click', () => {
+            const categoryKey = button.closest('.question-card').querySelector('.category-pill').textContent.toLowerCase();
+            const normalizedKey = categoryKey === 'general knowledge' ? 'generalKnowledge' : categoryKey;
+            toggleCardComplete(normalizedKey);
+          });
+        });
+
+        updateCompletionBanner();
+      }
+
+      renderQuestions();
+    </script>
+  </body>
+</html>
